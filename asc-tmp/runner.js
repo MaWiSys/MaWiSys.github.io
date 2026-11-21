@@ -34,6 +34,10 @@ window.ASC = (() => {
         if (iLocs[loc]) await req('PATCH', `appInfoLocalizations/${iLocs[loc]}`, { data: { type: 'appInfoLocalizations', id: iLocs[loc], attributes: ia } });
         else await req('POST', 'appInfoLocalizations', { data: { type: 'appInfoLocalizations', attributes: { locale: loc, ...ia }, relationships: { appInfo: { data: { type: 'appInfos', id: info.id } } } } });
       });
+      if (!vLocs[loc]) {
+        const fresh = await req('GET', `appStoreVersions/${ver.id}/appStoreVersionLocalizations`);
+        fresh.data.forEach(x => vLocs[x.attributes.locale] = x.id);
+      }
       const va = { description: t.description, keywords: t.keywords, promotionalText: t.promotionalText, supportUrl: M.supportUrl, marketingUrl: M.marketingUrl };
       await step(`${app} ${loc} Beschreibung`, async () => {
         if (vLocs[loc]) await req('PATCH', `appStoreVersionLocalizations/${vLocs[loc]}`, { data: { type: 'appStoreVersionLocalizations', id: vLocs[loc], attributes: va } });
